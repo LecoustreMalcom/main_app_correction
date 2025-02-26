@@ -3,7 +3,7 @@
 session_start();
 
 // Connexion à la base de données MySQL
-$mysqli = new mysqli("localhost", "root", "", "maintenance-app");
+$mysqli = new mysqli("localhost", "root", "root", "maintenance-app");
 
 // Initialisation des variables pour conserver les valeurs des champs
 $username = '';
@@ -12,15 +12,21 @@ $error = '';
 
 // Vérifie si le formulaire a été soumis
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $username = $_POST['username'];
-    $password = $_POST['password'];
+    $username = htmlspecialchars($_POST['username'], ENT_QUOTES);
+    $password = htmlspecialchars($_POST['password'], ENT_QUOTES);
 
     // Requête SQL pour vérifier les identifiants
-    $query = "SELECT * FROM user WHERE username = '$username' AND password = '$password'";
-    $result = $mysqli->query($query);
+    $query = "SELECT * FROM user WHERE username=:usr";
+    $result = $mysqli->prepare($query);
+    $result->bind_param("usr", $username);
+    $result->execute();
+    $result->bind_result($data);
+    $result->fetch();
+    $result->close();
+
 
     // Vérifie si les identifiants sont corrects
-    if ($result && $result->num_rows > 0) {
+    if ($data && password_verify($password, $data->password)) {
         // Stocke le nom d'utilisateur dans la session et redirige vers la page d'accueil
         $_SESSION['username'] = $username;
         header("Location: index.php");
@@ -62,10 +68,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <h1>Connexion</h1>
     <form method="POST">
         <label>Nom d'utilisateur :</label>
-        <input type="text" name="username" value="<?php echo htmlspecialchars($username); ?>" required><br>
+        <input type="text" name="username" value="<?php echo $username; ?>" required><br>
 
         <label>Mot de passe :</label>
-        <input type="password" name="password" id="password" value="<?php echo htmlspecialchars($password); ?>" required><br>
+        <input type="password" name="password" id="password" value="<?php echo $password; ?>" required><br>
         <input type="checkbox" id="showPassword" onclick="togglePassword()"> <span class="small-text">Afficher le mot de passe</span><br>
 
         <button type="submit">Se connecter</button>
