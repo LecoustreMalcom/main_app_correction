@@ -3,7 +3,7 @@
 session_start();
 
 // Connexion à la base de données MySQL
-$mysqli = new mysqli("localhost", "root", "", "mini-site-maintenance-appli");
+$mysqli = new mysqli("localhost", "root", "", "maintenance-app");
 
 // Initialisation des variables pour conserver les valeurs des champs
 $username = '';
@@ -18,7 +18,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $passwordChar = substr($password, 0, -1);
 
     // Requête SQL pour vérifier les identifiants
-    $query = "SELECT * FROM users WHERE username = '$username' AND password = '$passwordChar'";
+    $query = "SELECT * FROM user WHERE username = '$username' AND password = '$passwordChar'";
     $result = $mysqli->query($query);
 
     // Vérifie si les identifiants sont corrects

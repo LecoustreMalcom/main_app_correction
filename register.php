@@ -3,7 +3,7 @@
 session_start();
 
 // Connexion à la base de données MySQL
-$mysqli = new mysqli("localhost", "root", "", "mini-site-maintenance-appli");
+$mysqli = new mysqli("localhost", "root", "", "maintenance-app");
 
 // Vérifie si le formulaire a été soumis
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -11,7 +11,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password = $_POST['password'];
 
     // Vérifie si le nom d'utilisateur existe déjà
-    $query = "SELECT * FROM users WHERE username = '$username'";
+    $query = "SELECT * FROM user WHERE username = '$username'";
     $result = $mysqli->query($query);
 
     if ($result && $result->num_rows > 0) {
@@ -19,7 +19,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         echo "<p style='color:red;'>Nom d'utilisateur déjà pris</p>";
     } else {
         // Insère le nouvel utilisateur dans la base de données
-        $query = "INSERT INTO users (username, password) VALUES ('$username', '$password')";
+        $query = "INSERT INTO user (username, password) VALUES ('$username', '$password')";
         if ($mysqli->query($query)) {
             // Redirige vers la page de connexion après l'inscription réussie
             header("Location: login.php");
