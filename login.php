@@ -15,10 +15,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = $_POST['username'];
     $password = $_POST['password'];
 
-    $passwordChar = substr($password, 0, -1);
-
     // Requête SQL pour vérifier les identifiants
-    $query = "SELECT * FROM user WHERE username = '$username' AND password = '$passwordChar'";
+    $query = "SELECT * FROM user WHERE username = '$username' AND password = '$password'";
     $result = $mysqli->query($query);
 
     // Vérifie si les identifiants sont corrects
@@ -30,7 +28,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } else {
         // Affiche un message d'erreur si les identifiants sont incorrects
         $error = "Identifiants incorrects";
-        $password = $passwordChar;
     }
 }
 ?>
