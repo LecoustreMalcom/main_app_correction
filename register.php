@@ -3,24 +3,38 @@
 session_start();
 
 // Connexion à la base de données MySQL
-$mysqli = new mysqli("localhost", "root", "", "maintenance-app");
+$mysqli = new mysqli("localhost", "root", "root", "maintenance-app");
+
+// Vérifie si la connexion a échoué
+if ($mysqli->connect_error) {
+    die("Échec de la connexion : " . $mysqli->connect_error);
+}
 
 // Vérifie si le formulaire a été soumis
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $username = $_POST['username'];
-    $password = $_POST['password'];
+    $username = htmlspecialchars($_POST['username'], ENT_QUOTES);
+    $password = htmlspecialchars($_POST['password'], ENT_QUOTES);
 
     // Vérifie si le nom d'utilisateur existe déjà
-    $query = "SELECT * FROM user WHERE username = '$username'";
-    $result = $mysqli->query($query);
+    $query = "SELECT * FROM user WHERE username = ?";
+    $stmt = $mysqli->prepare($query);
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
-    if ($result && $result->num_rows > 0) {
+    if ($result->num_rows > 0) {
         // Affiche un message d'erreur si le nom d'utilisateur existe déjà
         echo "<p style='color:red;'>Nom d'utilisateur déjà pris</p>";
     } else {
+        // Hash le mot de passe
+        $hashedPass = password_hash($password, PASSWORD_DEFAULT);
+
         // Insère le nouvel utilisateur dans la base de données
-        $query = "INSERT INTO user (username, password) VALUES ('$username', '$password')";
-        if ($mysqli->query($query)) {
+        $query = "INSERT INTO user (username, password) VALUES (?, ?)";
+        $stmt = $mysqli->prepare($query);
+        $stmt->bind_param("ss", $username, $hashedPass);
+
+        if ($stmt->execute()) {
             // Redirige vers la page de connexion après l'inscription réussie
             header("Location: login.php");
             exit();

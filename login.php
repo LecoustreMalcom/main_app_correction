@@ -16,17 +16,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password = htmlspecialchars($_POST['password'], ENT_QUOTES);
 
     // Requête SQL pour vérifier les identifiants
-    $query = "SELECT * FROM user WHERE username=:usr";
-    $result = $mysqli->prepare($query);
-    $result->bind_param("usr", $username);
-    $result->execute();
-    $result->bind_result($data);
-    $result->fetch();
-    $result->close();
+    $query = "SELECT * FROM user WHERE username = ?";
+    $stmt = $mysqli->prepare($query);
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $data = $result->fetch_assoc();
+    $stmt->close();
 
 
     // Vérifie si les identifiants sont corrects
-    if ($data && password_verify($password, $data->password)) {
+    if ($data && password_verify($password, $data['password'])) {
         // Stocke le nom d'utilisateur dans la session et redirige vers la page d'accueil
         $_SESSION['username'] = $username;
         header("Location: index.php");
